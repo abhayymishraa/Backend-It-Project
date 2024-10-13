@@ -1,0 +1,4 @@
+# To start with newrelic service with pm2 + watch intitialised
+
+pm2 start ecosystem.config.js --watch --ignore-watch="logs node_modules"
+

@@ -3,13 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "NEW_RELIC_AI_MONITORING_ENABLED=true NEW_RELIC_CUSTOM_INSIGHTS_EVENTS_MAX_SAMPLES_STORED=100k NEW_RELIC_SPAN_EVENTS_MAX_SAMPLES_STORED=10k NEW_RELIC_APP_NAME=project NEW_RELIC_LICENSE_KEY=84df224d54b3a46f3b9f4eb7fa87a3cbFFFFNRAL node -r newrelic index.js"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "express": "^4.19.2",
-    "nodemon": "^3.1.4"
+    "newrelic": "^12.5.1",
+    "nodemon": "^3.1.4",
+    "prom-client": "^15.1.3"
   }
 }
