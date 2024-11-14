@@ -13,6 +13,9 @@ const register = new promClient.Registry();
 const routeCounter = new promClient.Counter({ name: 'route_requests_total', help: 'Total requests received per route', labelNames: ['method', 'route'] });
 
 // Define custom metrics
+const latitudeGauge = new promClient.Gauge({ name: 'latitude', help: 'Latitude of the sensor' });
+const longitudeGauge = new promClient.Gauge({ name: 'longitude', help: 'Longitude of the sensor' });
+
 const temperatureGauge = new promClient.Gauge({
     name: 'iot_temperature',
     help: 'Temperature value from IoT devices'
@@ -53,6 +56,8 @@ register.registerMetric(lpgConcentration);
 register.registerMetric(coConcentration);
 register.registerMetric(ch4Concentration);
 register.registerMetric(propaneConcentration);
+register.registerMetric(latitudeGauge);
+register.registerMetric(longitudeGauge);
 
 // Optional: Add default metrics to Prometheus
 promClient.collectDefaultMetrics({ register });
@@ -92,8 +97,7 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
     console.log(req.body);
-
-    const { temperature, humidity, mq5Value } = req.body;
+    const { temperature, humidity, mq5Value, latitude, longitude } = req.body;
 
     // Calculate gas concentrations
     const gasConcentrations = calculateGasConcentrations(parseFloat(mq5Value));
@@ -102,8 +106,8 @@ app.post('/', (req, res) => {
     newrelic.recordCustomEvent('SensorData', {
         date: new Date().toISOString().split('T')[0],
         time: new Date().toTimeString().split(' ')[0],
-        latitude: '12.3456',
-        longitude: '78.9123',
+        latitude: latitude || '12.3456',
+        longitude: longitude ||'78.9123',
         temperature: temperature,
         humidity: humidity,
         mq5Value: mq5Value,
@@ -118,6 +122,8 @@ app.post('/', (req, res) => {
     coConcentration.set(parseFloat(gasConcentrations.co));
     ch4Concentration.set(parseFloat(gasConcentrations.ch4));
     propaneConcentration.set(parseFloat(gasConcentrations.propane));
+    latitudeGauge.set(parseFloat(latitude) ||12.3456);
+    longitudeGauge.set(parseFloat(longitude) || 78.9123);
 
     const d = new Date();
     data.unshift('Data Received - ' + d + "  " + JSON.stringify(req.body) + " Gas Concentrations: " + JSON.stringify(gasConcentrations));
@@ -136,4 +142,3 @@ app.get('/delete/all', (req, res) => {
 });
 
 app.listen(3001, () => console.log('Project is listening on port 3001'));
-
